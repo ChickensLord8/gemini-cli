@@ -49,7 +49,9 @@ export interface HttpOptions {
   headers?: Record<string, string>;
 }
 
-export const CODE_ASSIST_ENDPOINT = 'https://cloudcode-pa.googleapis.com';
+// export const CODE_ASSIST_ENDPOINT = 'https://cloudcode-pa.googleapis.com';
+export const CODE_ASSIST_ENDPOINT =
+  'https://autopush-cloudcode-pa.sandbox.googleapis.com';
 export const CODE_ASSIST_API_VERSION = 'v1internal';
 
 export class CodeAssistServer implements ContentGenerator {
@@ -177,6 +179,15 @@ export class CodeAssistServer implements ContentGenerator {
   }
 
   async receiveEvents(): Promise<void> {
+    await this.loadCodeAssist({
+      cloudaicompanionProject: this.projectId,
+      metadata: {
+        ideType: 'IDE_UNSPECIFIED',
+        platform: 'PLATFORM_UNSPECIFIED',
+        pluginType: 'GEMINI',
+        duetProject: this.projectId,
+      },
+    });
     const res = await this.requestGet('event:receive');
     console.log(res);
   }
