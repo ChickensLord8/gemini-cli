@@ -40,8 +40,8 @@ class ActivateSkillToolInvocation extends BaseToolInvocation<
 
   async execute(_signal: AbortSignal): Promise<ToolResult> {
     const skillName = this.params.name;
-    const skillDiscoveryService = this.config.getSkillDiscoveryService();
-    const skills = skillDiscoveryService.getSkills();
+    const skillManager = this.config.getSkillManager();
+    const skills = skillManager.getSkills();
     const skill = skills.find((s) => s.name === skillName);
 
     if (!skill) {
@@ -51,7 +51,7 @@ class ActivateSkillToolInvocation extends BaseToolInvocation<
       };
     }
 
-    const content = await skillDiscoveryService.getSkillContent(skillName);
+    const content = await skillManager.getSkillContent(skillName);
     if (!content) {
       return {
         llmContent: `Error: Could not read content for skill "${skillName}".`,
@@ -59,7 +59,7 @@ class ActivateSkillToolInvocation extends BaseToolInvocation<
       };
     }
 
-    this.config.activateSkill(skillName);
+    skillManager.activateSkill(skillName);
 
     return {
       llmContent: `Skill "${skillName}" activated successfully. Here are its detailed instructions and rules. You MUST follow them strictly:

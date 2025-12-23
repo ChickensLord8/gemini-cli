@@ -19,8 +19,9 @@ export interface SkillContent extends SkillMetadata {
   body: string; // The Markdown content after the frontmatter
 }
 
-export class SkillDiscoveryService {
+export class SkillManager {
   private skills: SkillMetadata[] = [];
+  private activeSkillNames: Set<string> = new Set();
 
   /**
    * Discovers skills in the provided paths and stores them.
@@ -99,13 +100,16 @@ export class SkillDiscoveryService {
         return null;
       }
 
-      const { name, description } = frontmatter as Record<string, unknown>;
-      if (typeof name !== 'string' || typeof description !== 'string') {
+      const { name: skillName, description } = frontmatter as Record<
+        string,
+        unknown
+      >;
+      if (typeof skillName !== 'string' || typeof description !== 'string') {
         return null;
       }
 
       return {
-        name,
+        name: skillName,
         description,
         location: filePath,
         body: match[2].trim(),
@@ -114,6 +118,20 @@ export class SkillDiscoveryService {
       console.error(`Error reading skill content from ${filePath}:`, error);
       return null;
     }
+  }
+
+  /**
+   * Activates a skill by name.
+   */
+  activateSkill(name: string): void {
+    this.activeSkillNames.add(name);
+  }
+
+  /**
+   * Checks if a skill is active.
+   */
+  isSkillActive(name: string): boolean {
+    return this.activeSkillNames.has(name);
   }
 
   private async parseSkillFile(

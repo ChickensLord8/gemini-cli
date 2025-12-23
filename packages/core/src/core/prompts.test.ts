@@ -72,10 +72,9 @@ describe('Core System Prompt (prompts.ts)', () => {
       getAgentRegistry: vi.fn().mockReturnValue({
         getDirectoryContext: vi.fn().mockReturnValue('Mock Agent Directory'),
       }),
-      getSkillDiscoveryService: vi.fn().mockReturnValue({
+      getSkillManager: vi.fn().mockReturnValue({
         getSkills: vi.fn().mockReturnValue([]),
       }),
-      getActiveSkillNames: vi.fn().mockReturnValue([]),
     } as unknown as Config;
   });
 
@@ -87,9 +86,7 @@ describe('Core System Prompt (prompts.ts)', () => {
         location: '/path/to/test-skill/SKILL.md',
       },
     ];
-    vi.mocked(mockConfig.getSkillDiscoveryService().getSkills).mockReturnValue(
-      skills,
-    );
+    vi.mocked(mockConfig.getSkillManager().getSkills).mockReturnValue(skills);
     const prompt = await getCoreSystemPrompt(mockConfig);
 
     expect(prompt).toContain('# Available Agent Skills');
@@ -200,10 +197,9 @@ describe('Core System Prompt (prompts.ts)', () => {
         getAgentRegistry: vi.fn().mockReturnValue({
           getDirectoryContext: vi.fn().mockReturnValue('Mock Agent Directory'),
         }),
-        getSkillDiscoveryService: vi.fn().mockReturnValue({
+        getSkillManager: vi.fn().mockReturnValue({
           getSkills: vi.fn().mockReturnValue([]),
         }),
-        getActiveSkillNames: vi.fn().mockReturnValue([]),
       } as unknown as Config;
 
       const prompt = await getCoreSystemPrompt(testConfig);

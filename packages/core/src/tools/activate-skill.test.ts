@@ -14,7 +14,7 @@ describe('ActivateSkillTool', () => {
 
   beforeEach(() => {
     mockConfig = {
-      getSkillDiscoveryService: vi.fn().mockReturnValue({
+      getSkillManager: vi.fn().mockReturnValue({
         getSkills: vi.fn().mockReturnValue([
           {
             name: 'test-skill',
@@ -28,8 +28,8 @@ describe('ActivateSkillTool', () => {
           location: '/path/to/test-skill/SKILL.md',
           body: 'Skill instructions content.',
         }),
+        activateSkill: vi.fn(),
       }),
-      activateSkill: vi.fn(),
     } as unknown as Config;
     tool = new ActivateSkillTool(mockConfig);
   });
@@ -48,7 +48,9 @@ describe('ActivateSkillTool', () => {
     ).createInvocation(params);
     const result = await invocation.execute(new AbortController().signal);
 
-    expect(mockConfig.activateSkill).toHaveBeenCalledWith('test-skill');
+    expect(mockConfig.getSkillManager().activateSkill).toHaveBeenCalledWith(
+      'test-skill',
+    );
     expect(result.llmContent).toContain(
       'Skill "test-skill" activated successfully',
     );
@@ -74,13 +76,13 @@ describe('ActivateSkillTool', () => {
       'Error: Skill "non-existent" not found',
     );
     expect(result.returnDisplay).toBe('Skill "non-existent" not found.');
-    expect(mockConfig.activateSkill).not.toHaveBeenCalled();
+    expect(mockConfig.getSkillManager().activateSkill).not.toHaveBeenCalled();
   });
 
   it('should return an error if skill content cannot be read', async () => {
-    vi.mocked(
-      mockConfig.getSkillDiscoveryService().getSkillContent,
-    ).mockResolvedValue(null);
+    vi.mocked(mockConfig.getSkillManager().getSkillContent).mockResolvedValue(
+      null,
+    );
     const params = { name: 'test-skill' };
     const invocation = (
       tool as unknown as {
@@ -97,7 +99,7 @@ describe('ActivateSkillTool', () => {
     expect(result.llmContent).toContain(
       'Error: Could not read content for skill "test-skill"',
     );
-    expect(mockConfig.activateSkill).not.toHaveBeenCalled();
+    expect(mockConfig.getSkillManager().activateSkill).not.toHaveBeenCalled();
   });
 
   it('should validate that name is provided', () => {

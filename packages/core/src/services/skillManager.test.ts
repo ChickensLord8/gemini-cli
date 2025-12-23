@@ -8,14 +8,14 @@ import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import * as fs from 'node:fs/promises';
 import * as os from 'node:os';
 import * as path from 'node:path';
-import { SkillDiscoveryService } from './skillDiscoveryService.js';
+import { SkillManager } from './skillManager.js';
 
-describe('SkillDiscoveryService', () => {
+describe('SkillManager', () => {
   let testRootDir: string;
 
   beforeEach(async () => {
     testRootDir = await fs.mkdtemp(
-      path.join(os.tmpdir(), 'skill-discovery-test-'),
+      path.join(os.tmpdir(), 'skill-manager-test-'),
     );
   });
 
@@ -38,7 +38,7 @@ Do something.
 `,
     );
 
-    const service = new SkillDiscoveryService();
+    const service = new SkillManager();
     const skills = await service.discoverSkills([testRootDir]);
 
     expect(skills).toHaveLength(1);
@@ -53,7 +53,7 @@ Do something.
     const notASkillDir = path.join(testRootDir, 'not-a-skill');
     await fs.mkdir(notASkillDir, { recursive: true });
 
-    const service = new SkillDiscoveryService();
+    const service = new SkillManager();
     const skills = await service.discoverSkills([testRootDir]);
 
     expect(skills).toHaveLength(0);
@@ -65,7 +65,7 @@ Do something.
     const skillFile = path.join(skillDir, 'SKILL.md');
     await fs.writeFile(skillFile, '# No frontmatter here');
 
-    const service = new SkillDiscoveryService();
+    const service = new SkillManager();
     const skills = await service.discoverSkills([testRootDir]);
 
     expect(skills).toHaveLength(0);
@@ -83,7 +83,7 @@ name: missing-fields
 `,
     );
 
-    const service = new SkillDiscoveryService();
+    const service = new SkillManager();
     const skills = await service.discoverSkills([testRootDir]);
 
     expect(skills).toHaveLength(0);
@@ -117,7 +117,7 @@ description: Skill 2
 `,
     );
 
-    const service = new SkillDiscoveryService();
+    const service = new SkillManager();
     const skills = await service.discoverSkills([path1, path2]);
 
     expect(skills).toHaveLength(2);
@@ -136,7 +136,7 @@ description: Skill
 `,
     );
 
-    const service = new SkillDiscoveryService();
+    const service = new SkillManager();
     // Use the same path twice
     const skills = await service.discoverSkills([testRootDir, testRootDir]);
 

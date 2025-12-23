@@ -38,7 +38,7 @@ import { BaseLlmClient } from '../core/baseLlmClient.js';
 import type { HookDefinition, HookEventName } from '../hooks/types.js';
 import { FileDiscoveryService } from '../services/fileDiscoveryService.js';
 import { GitService } from '../services/gitService.js';
-import { SkillDiscoveryService } from '../services/skillDiscoveryService.js';
+import { SkillManager } from '../services/skillManager.js';
 import type { TelemetryTarget } from '../telemetry/index.js';
 import {
   initializeTelemetry,
@@ -391,8 +391,7 @@ export class Config {
     disableFuzzySearch: boolean;
   };
   private fileDiscoveryService: FileDiscoveryService | null = null;
-  private skillDiscoveryService: SkillDiscoveryService | null = null;
-  private activeSkillNames: Set<string> = new Set();
+  private skillManager: SkillManager | null = null;
   private gitService: GitService | undefined = undefined;
   private readonly checkpointing: boolean;
   private readonly proxy: string | undefined;
@@ -702,13 +701,13 @@ export class Config {
     this.promptRegistry = new PromptRegistry();
     this.resourceRegistry = new ResourceRegistry();
 
-    // Initialize SkillDiscoveryService and discover skills
-    this.skillDiscoveryService = new SkillDiscoveryService();
+    // Initialize SkillManager and discover skills
+    this.skillManager = new SkillManager();
     const skillPaths = [
       path.join(this.cwd, '.gemini', 'skills'),
       path.join(os.homedir(), '.gemini', 'skills'),
     ];
-    await this.skillDiscoveryService.discoverSkills(skillPaths);
+    await this.skillManager.discoverSkills(skillPaths);
 
     this.agentRegistry = new AgentRegistry(this);
     await this.agentRegistry.initialize();
@@ -1304,19 +1303,11 @@ export class Config {
     return this.cwd;
   }
 
-  getSkillDiscoveryService(): SkillDiscoveryService {
-    if (!this.skillDiscoveryService) {
-      this.skillDiscoveryService = new SkillDiscoveryService();
+  getSkillManager(): SkillManager {
+    if (!this.skillManager) {
+      this.skillManager = new SkillManager();
     }
-    return this.skillDiscoveryService;
-  }
-
-  getActiveSkillNames(): string[] {
-    return Array.from(this.activeSkillNames);
-  }
-
-  activateSkill(name: string): void {
-    this.activeSkillNames.add(name);
+    return this.skillManager;
   }
 
   getBugCommand(): BugCommandSettings | undefined {

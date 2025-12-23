@@ -201,7 +201,7 @@ export class ReadFileTool extends BaseDeclarativeTool<
       resolvedPath === resolvedProjectTempDir;
 
     const isSkillFile = this.config
-      .getSkillDiscoveryService()
+      .getSkillManager()
       .getSkills()
       .some((skill) => path.resolve(skill.location) === resolvedPath);
 

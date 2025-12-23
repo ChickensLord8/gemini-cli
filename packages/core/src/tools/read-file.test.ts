@@ -44,7 +44,7 @@ describe('ReadFileTool', () => {
       storage: {
         getProjectTempDir: () => path.join(tempRootDir, '.temp'),
       },
-      getSkillDiscoveryService: () => ({
+      getSkillManager: () => ({
         getSkills: () => [],
       }),
       isInteractive: () => false,
@@ -118,7 +118,7 @@ describe('ReadFileTool', () => {
         storage: {
           getProjectTempDir: () => path.join(tempRootDir, '.temp'),
         },
-        getSkillDiscoveryService: () => ({
+        getSkillManager: () => ({
           getSkills: () => [
             {
               name: 'outside-skill',
@@ -480,7 +480,7 @@ describe('ReadFileTool', () => {
           storage: {
             getProjectTempDir: () => path.join(tempRootDir, '.temp'),
           },
-          getSkillDiscoveryService: () => ({
+          getSkillManager: () => ({
             getSkills: () => [],
           }),
         } as unknown as Config;
