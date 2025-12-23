@@ -235,8 +235,10 @@ export class CodeAssistServer implements ContentGenerator {
   }
 
   async receiveEvents(): Promise<ReceiveEventsResponse> {
-    const response: ReceiveEventsResponse =
-      await this.requestGet(METHOD_WITH_PARAMS);
+    const response: ReceiveEventsResponse = await this.requestGet(
+      METHOD_WITH_PARAMS,
+      false,
+    );
     return response;
   }
 
@@ -298,9 +300,13 @@ export class CodeAssistServer implements ContentGenerator {
     return res.data as T;
   }
 
-  async requestGet<T>(method: string, signal?: AbortSignal): Promise<T> {
+  async requestGet<T>(
+    method: string,
+    requiresColonFormat?: boolean,
+    signal?: AbortSignal,
+  ): Promise<T> {
     const res = await this.client.request({
-      url: this.getMethodUrl(method),
+      url: this.getMethodUrl(method, requiresColonFormat),
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -354,13 +360,13 @@ export class CodeAssistServer implements ContentGenerator {
     })();
   }
 
-  getMethodUrl(method: string): string {
+  getMethodUrl(method: string, requiresColonFormat?: boolean): string {
     const endpoint =
       process.env['CODE_ASSIST_ENDPOINT'] ?? CODE_ASSIST_ENDPOINT;
 
-    return method === METHOD_WITH_PARAMS
-      ? `${endpoint}/${CODE_ASSIST_API_VERSION}/${method}`
-      : `${endpoint}/${CODE_ASSIST_API_VERSION}:${method}`;
+    return requiresColonFormat !== false
+      ? `${endpoint}/${CODE_ASSIST_API_VERSION}:${method}`
+      : `${endpoint}/${CODE_ASSIST_API_VERSION}/${method}`;
   }
 }
 
